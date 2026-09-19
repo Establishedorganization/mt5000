@@ -1,27 +1,30 @@
-# gl-mt5000-openwrt
+## A fork from https://github.com/dmtpascoal/gl-mt5000-openwrt
+## gl-mt5000-openwrt
 
 A **clean, minimal** build of **official OpenWrt 25.12** (kernel 6.12) for the
-**GL.iNet GL-MT5000 (Brume 3)** — with the RTL8371C ("RTL8366UB") switch driven
+**GL.iNet GL-MT5000 (Brume 3)** — with the RTL8371C ("RTL8366UB") switch chip — driven
 as a proper **DSA** switch instead of the legacy swconfig driver.
 
 This is *vanilla OpenWrt + the not-yet-merged device support + a ported DSA
-switch driver*. It is **not** a GL.iNet firmware fork, and it carries no proxy
+switch driver*.
+
+It is **not** a GL.iNet firmware fork, and it carries no proxy
 stack, themes, or external feeds.
 
 ## What the build does
 
-1. Clones official `openwrt/openwrt` at branch `openwrt-25.12` (kernel 6.12).
-2. Grafts the GL-MT5000 device-support commit from OpenWrt PR
+**1.** Clones official `openwrt/openwrt` at branch `openwrt-25.12` (kernel 6.12).
+**2.** Grafts the GL-MT5000 device-support commit from OpenWrt PR
    [#24237](https://github.com/openwrt/openwrt/pull/24237) (DTS, image recipe,
    board files, and GL's GPL-released RTL8371C SDK package).
-3. Converts the switch package from GL's **swconfig** driver to a **DSA** driver
+**3.** Converts the switch package from GL's **swconfig** driver to a **DSA** driver
    (`files/dsa/rtl8366ub_dsa.c`, ported from GL's kernel-5.4 code to the 6.12 DSA
    API) and installs a matching DSA device tree (`files/dsa/mt7987a-gl-mt5000.dts`).
-4. Builds a minimal image: LuCI + `ethtool`/`ip-full`/`tcpdump` for validation.
+**4.** Builds a minimal image: LuCI + `ethtool`/`ip-full`/`tcpdump` for validation.
 
-All of that is driven by `scripts/diy.sh` and `config/mt5000.config`.
+*All of that is driven by `scripts/diy.sh` and `config/mt5000.config`.* **Thanks to GitHub Actions!**
 
-## Build it
+## Build it!
 
 GitHub → **Actions** → **Build GL-MT5000 OpenWrt (DSA)** → **Run workflow**.
 When it finishes, download the **`gl-mt5000-firmware`** artifact (kept 14 days).
@@ -32,19 +35,20 @@ It contains:
 
 ## Install / recovery
 
-- **Flash:** upload the `sysupgrade.bin` on the GL stock firmware upgrade page
+- **Flash:** upload the `sysupgrade.bin` on the GL.iNet stock firmware upgrade page
   (uncheck "keep settings"), or `sysupgrade -n <image>` over SSH.
-- **Recovery:** GL U-Boot failsafe — power on holding reset until the LED
-  flashes, browse to `192.168.1.1`, upload stock GL firmware.
-  See <https://docs.gl-inet.com/router/en/4/faq/debrick/>.
+- **Recovery:** GL.iNet U-Boot failsafe — power on holding reset until the LED
+  flashes, browse to `192.168.1.1`, upload stock GL.iNet firmware.
+  See: <https://docs.gl-inet.com/router/en/4/faq/debrick/>.
 
 ## Status / caveats
 
 - ⚠️ **The DSA driver is not yet hardware-validated.** It compiles, but LAN↔LAN,
   the tagged VLAN trunk, and 2.5G link speed must be verified on a bench unit
   before flashing a production router.
+  
 - This driver is a **fork-only** solution. Mainline OpenWrt wants the RTL8371C
-  added to the existing `rtl8365mb` driver instead of vendoring GL's SDK
+  added to the existing `rtl8365mb` driver instead of vendoring GL.iNet's SDK
   (see the discussion on PR #24237). This repo prioritizes a *working image now*.
 - MediaTek's PPE hardware flow-offload only supports MediaTek's own DSA tag
   (`DSA_TAG_PROTO_MTK`); it rejects the Realtek `rtl8_4` tag
